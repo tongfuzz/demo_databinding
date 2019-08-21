@@ -6,5 +6,16 @@ package com.kk.tongfu.databinding.entity
  * Desc:
  */
 
- data class User(val userName:String,val userAge:Int,val userAddress:String) {
+data class User(val userName: String, val userAge: Int, val userAddress: String?) {
+
+    companion object{
+        @JvmStatic
+        fun getEmail(): String {
+            return "tongfus@126.com"
+        }
+    }
+
+    fun print(info: String) {
+
+    }
 }
