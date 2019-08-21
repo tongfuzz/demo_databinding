@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">databinding</string>
     <string name="info">the %s of the student is %d</string>
+    <string name="click">点击</string>
 </resources>

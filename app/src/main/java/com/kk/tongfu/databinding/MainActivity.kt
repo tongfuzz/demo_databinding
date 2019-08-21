@@ -3,6 +3,7 @@ package com.kk.tongfu.databinding
 import android.databinding.DataBindingUtil
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.kk.tongfu.databinding.callbacks.MyHandlers
 import com.kk.tongfu.databinding.databinding.ActivityMainBinding
 import com.kk.tongfu.databinding.entity.User
 
@@ -24,6 +25,8 @@ class MainActivity : AppCompatActivity() {
         binding.key="3"
 
         binding.isRed=true
+
+        binding.handler=MyHandlers()
 
     }
 }

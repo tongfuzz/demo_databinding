@@ -5,7 +5,9 @@
 
     <data>
         <variable name="user" type="com.kk.tongfu.databinding.entity.User"/>
-        
+
+        <variable name="handler" type="com.kk.tongfu.databinding.callbacks.MyHandlers"/>
+
         <!--集合的使用-->
         <import type="java.util.List"/>
         <import type="java.util.Map"/>
@@ -14,7 +16,7 @@
         <variable name="index" type="int"/>
         <variable name="key" type="String"/>
         <variable name="isRed" type="boolean"/>
-        
+
     </data>
 
     <LinearLayout
@@ -63,7 +65,26 @@
                 android:text='@{@string/info("age",10)}'
         />
 
+        <TextView android:layout_width="80dp"
+                  android:layout_height="50dp"
+                  android:text="@string/click"
+                  android:layout_gravity="center"
+                  android:background="@{@color/red}"
+                  android:onClick='@{handler::onTextViewClick}'
+        />
 
+        <TextView android:layout_width="80dp"
+                  android:layout_height="50dp"
+                  android:text="@string/click"
+                  android:background="@{@color/red}"
+                  android:onClick='@{(view)->handler.onTextViewClick2(view,"haha")}'
+        />
+
+        <CheckBox android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:onCheckedChanged='@{(cb,isChecked)->handler.onCheckBoxStatusChange("haha",isChecked)}'
+                  android:text="男"
+        />
 
 
     </LinearLayout>
