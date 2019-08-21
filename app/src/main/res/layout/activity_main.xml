@@ -5,6 +5,16 @@
 
     <data>
         <variable name="user" type="com.kk.tongfu.databinding.entity.User"/>
+        
+        <!--集合的使用-->
+        <import type="java.util.List"/>
+        <import type="java.util.Map"/>
+        <variable name="list" type="List&lt;String>"/>
+        <variable name="map" type="Map&lt;String,String>"/>
+        <variable name="index" type="int"/>
+        <variable name="key" type="String"/>
+        <variable name="isRed" type="boolean"/>
+        
     </data>
 
     <LinearLayout
@@ -13,7 +23,6 @@
             tools:context=".MainActivity"
             android:orientation="vertical"
     >
-
 
         <TextView
                 android:layout_width="wrap_content"
@@ -30,6 +39,32 @@
                 android:layout_height="wrap_content"
                 android:text="@{user.userAddress}"
         />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{list[index]}"
+        />
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{map[key]}"
+        />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@{isRed?@color/red : @color/colorPrimary}"
+        />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text='@{@string/info("age",10)}'
+        />
+
+
+
 
     </LinearLayout>
 

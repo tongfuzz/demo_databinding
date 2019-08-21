@@ -13,5 +13,17 @@ class MainActivity : AppCompatActivity() {
         val binding: ActivityMainBinding =DataBindingUtil.setContentView(this,R.layout.activity_main)
         //binding.user=User("tongfu",25,null)
         binding.user=null
+
+        val map= mapOf(Pair("1","the first item in map"),Pair("2","the second item in map "), Pair("3","the thrid item in map"))
+        val list= listOf("the first item in array","the second item in array","the thrid item in array")
+
+        binding.map=map
+        binding.list=list
+
+        binding.index=1
+        binding.key="3"
+
+        binding.isRed=true
+
     }
 }
