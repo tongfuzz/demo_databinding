@@ -23,7 +23,7 @@ findViewById<TextView>(R.id.sample_text).apply {
 ，下面我们来看一下如何使用DataBinding并将数据进行绑
 
 
-#### 使用
+#### 简单使用
 
 ##### 1，gradle配置
 
@@ -386,4 +386,88 @@ android:onClick="@{(v) -> v.isVisible() ? doSomething() : void}"
       android:onCheckedChanged="@{(cb, isChecked) -> handler.onTextViewClick2
                    ("haha",isChecked)}" />
 ```
+### 进阶使用
+
+##### 可观察对象
+
+以前在Activity中为View绑定数据式，当数据源发生改变时，并不会主动更新UI，DataBinding为我们的数据对象提供了可观察的能力，使得当数据发生改变时，UI组件会自动更新
+
+DataBinding提供了三种不同类型的可观察类：<font color=red>属性</font> &emsp;&emsp; <font color=red>集合</font> &emsp;&emsp;<font color=red>对象</font>
+
+###### 1. 可观察属性
+---
+DataBinding提供了以下几种原始的类来使属性可观察
+
+* ObservableBoolean
+* ObservableByte
+* ObservableChar
+* ObservableShort
+* ObservableInt
+* ObservableLong
+* ObservableFloat
+* ObservableDouble
+* ObservableField<T>
+* ObservableParcelable
+
+来看看它如何使用，首先定义一个ObservableUser类，其中参数为可观察属性，对于非基础类型的属性我们使用ObservableField<T>
+
+```kotlin
+//注意此处定义属性尽量使用val定义只读属性，因为绑定数据改变是只改变字段中的值，而不会改变字段本身
+class ObservableUser(
+    val userName: ObservableField<String>,
+    val userAge: ObservableInt,
+    val userAddress: ObservableField<String>
+)
+```
+然后在xml文件中引入此类，添加textview用来展示数据，添加button用来更改用户数据
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+>
+    <data>
+        <variable name="user" type="com.kk.tongfu.databinding.entity.ObservableUser"/>
+    </data>
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:text="@{user.userName}"
+        />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:text="@{String.valueOf(user.userAge)}"
+        />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:text="@{user.userAddress}"
+        />
+
+        <Button android:id="@+id/btn_change_userinfo"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/change_user_info"
+        />
+    </LinearLayout>
+
+</layout>
+```
+最后在activity中绑定数据，并为button设置点击事件用来更改用户名称
+
+```kotlin
+ override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        //获取ViewDataBinding对象，如果找不到类，构建一下项目即可
+        val dataBinding:ActivitySpecialUseBinding=DataBindingUtil.setContentView(this,R.layout.activity_special_use)
+        //定义一个ObservableUser对象
+        val user=ObservableUser(ObservableField("tongfu"), ObservableInt(25), ObservableField("shanghai"))
+        //进行绑定
+        dataBinding.user=user
+        //设置Button的点击事件，并更改user对象的userName属性，注意此处只是改变了对象的userName属性，你会发现UI同步进行了更改，这就是可观察属性
+        dataBinding.btnChangeUserinfo.setOnClickListener{
+            Log.e("onClick","changeUserName")
+            user.userName.set("tongfuhaha")
+        }
+    }
+```
+运行项目，点击button,你会发现虽然我们只更改了userName属性，但是引用了userName属性的TextView中的问题同样进行了更改
 

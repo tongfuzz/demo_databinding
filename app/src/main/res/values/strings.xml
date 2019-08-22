@@ -2,4 +2,7 @@
     <string name="app_name">databinding</string>
     <string name="info">the %s of the student is %d</string>
     <string name="click">点击</string>
+    <string name="normal_use">基础用法</string>
+    <string name="special_use">进阶用法</string>
+    <string name="change_user_info">更改用户信息</string>
 </resources>
