@@ -1,6 +1,6 @@
-###Android Jetpack之DataBinding 的使用
+### Android Jetpack之DataBinding 的使用
 
-####介绍
+#### 介绍
 
 DataBinding是安卓提供的一个通过声明格式的方式将数据源与UI组件来进行绑定的库，它区别于传统的通过编程来绑定数据的方式，使得项目中Activity等UI组件中绑定数据的方法相应的减少，这样使得它们变得更加的简单和便于维护，同时也能够提升App的性能，帮助开发者减少内存泄漏，空指针异常等问题。
 
@@ -23,9 +23,9 @@ findViewById<TextView>(R.id.sample_text).apply {
 ，下面我们来看一下如何使用DataBinding并将数据进行绑
 
 
-####使用
+#### 使用
 
-#####1，gradle配置
+##### 1，gradle配置
 
 DataBinding具有灵活性和兼容性，它是一个support库，所以你可以将它使用到Android4.0或更高的版本上，对于Gradle它只支持1.5.0及以上
 
@@ -45,7 +45,7 @@ android {
 android.databinding.enableV2=true
 ```
 
-#####2，在Activity中的使用
+##### 2，在Activity中的使用
 
 >项目使用kotlin语言，对kotlin尚不熟悉的同学可以查看[kotlin语言中文站](https://www.kotlincn.net/docs/reference/)
 
@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity() {
  <img width="300" height="500" src="https://raw.githubusercontent.com/tongfuzz/demo_databinding/master/screenshots/databinding1.png"/>
  </div>
 
-#####3，表达式支持的操作和关键词
+##### 3，表达式支持的操作和关键词
 
 整体看来，DataBinding将本来在Activity中进行的一系列数据绑定工作，放到了xml文件中，这样大大简化了Activity，在我们拿到相应的绑定对象后，就可以在xml文件中通过@{}完成数据的绑定，此时@{}更像是一个方法，它的值作为相应的布局文件的属性值，其实@{}中可以使用的操作和关键词还有如下一些
 
@@ -148,7 +148,7 @@ android:visibility="@{age > 13 ? View.GONE : View.VISIBLE}"
 android:transitionName='@{"image_" + id}'
 ```
 
-#####4，空指针问题
+##### 4，空指针问题
 
 在@{}表达式中还可以使用<font color=red>??</font>判断是否为空
 
@@ -175,7 +175,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
  <img width="300" height="500" src="https://raw.githubusercontent.com/tongfuzz/demo_databinding/master/screenshots/databinding2.png"/>
  </div>
  
-#####5，集合的使用
+##### 5，集合的使用
 
 DataBinding中使用集合，可以通过[]操作符来直接使用其中的元素，使用集合之前，我们需要先将相关联的类引入进来，然后然后定义key，或者index,接着就可以通过[]操作符来获取其中的元素了，示例如下
 
@@ -243,7 +243,7 @@ DataBinding中使用集合，可以通过[]操作符来直接使用其中的元�
     }
 ```
 
-#####6,资源的引用
+##### 6,资源的引用
 
 使用DataBinding引用资源，与我们正常在xml中引用资源差别不大，只是DataBinding更加灵活，功能也更加丰富
 我们可以通过如下方式为TextView设置背景，只需定义一个boolen变量isRed,并在Activity中为其赋值即可
@@ -277,7 +277,7 @@ DataBinding中使用集合，可以通过[]操作符来直接使用其中的元�
  <img width="500" height="200" src="https://raw.githubusercontent.com/tongfuzz/demo_databinding/master/screenshots/databinding3.png"/>
  </div>
 
-#####7 事件处理
+##### 7 事件处理
 
 DataBinding允许通过写表达式的方式处理view的相关事件，例如点击事件onClick,处理事件的机制有两种，两者除了语法不同外，还有一下区别
  
