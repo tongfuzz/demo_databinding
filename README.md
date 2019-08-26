@@ -394,7 +394,7 @@ android:onClick="@{(v) -> v.isVisible() ? doSomething() : void}"
 
 DataBinding提供了三种不同类型的可观察类：<font color=red>属性</font> &emsp;&emsp; <font color=red>集合</font> &emsp;&emsp;<font color=red>对象</font>
 
-###### 1. 可观察属性
+###### 可观察属性
 ---
 DataBinding提供了以下几种原始的类来使属性可观察
 
@@ -465,9 +465,295 @@ class ObservableUser(
         //设置Button的点击事件，并更改user对象的userName属性，注意此处只是改变了对象的userName属性，你会发现UI同步进行了更改，这就是可观察属性
         dataBinding.btnChangeUserinfo.setOnClickListener{
             Log.e("onClick","changeUserName")
-            user.userName.set("tongfuhaha")
+            user.userName.set("neza")
         }
     }
 ```
 运行项目，点击button,你会发现虽然我们只更改了userName属性，但是引用了userName属性的TextView中的问题同样进行了更改
+<div align=center>
+ <img width="300" height="500" src="https://raw.githubusercontent.com/tongfuzz/demo_databinding/master/screenshots/databinding4.gif"/>
+ </div>
+
+###### 可观察集合
+---
+有些app使用动态结构来保存数据，例如User对象，我们有可能不确定此User对象究竟包含了多少信息，所以我们无法通过固定写法来保存user中的属性，因为我们不知道它有多少个属性，DataBinding提供了ObservableArrayMap来通过key和value保存数据
+
+如下所示，我们更改xml文件，不再引入相应的用户类来保存数据，而是引入ObservableArrayMap来作为user对象，
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+>
+    <data>
+        <!--<variable name="user" type="com.kk.tongfu.databinding.entity.ObservableUser"/>-->
+        <import type="android.databinding.ObservableArrayMap"/>
+        <variable name="user" type="ObservableArrayMap&lt;String,Object>"/>
+    </data>
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:text="@{user.userName}"
+        />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:text="@{String.valueOf(user.userAge)}"
+        />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:text="@{user.userAddress}"
+        />
+
+        <Button android:id="@+id/btn_change_userinfo"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/change_user_info"
+        />
+
+
+    </LinearLayout>
+
+</layout>
+```
+然后在Activity中创建ObservableArrayMap对象并进行绑定，同样我们在点击事件中更改user对象中的value值，你会发现效果与上述可观察属性一样
+
+```kotlin
+override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val dataBinding: ActivitySpecialUseBinding = DataBindingUtil.setContentView(this, R.layout.activity_special_use)
+
+        //val user = ObservableUser(ObservableField("tongfu"), ObservableInt(25), ObservableField("shanghai"))
+        val user = ObservableArrayMap<String, Any>().apply {
+            put("userName", "tongfu")
+            put("userAge", 10)
+            put("userAddress", "shanghai")
+            put("userClass", "3-10")
+        }
+        dataBinding.user = user
+
+        dataBinding.btnChangeUserinfo.setOnClickListener {
+            Log.e("onClick", "changeUserName")
+            //user.userName="neza"
+            user.put("userName","neza")
+        }
+```
+这里效果与上一个gif效果相同不再贴出
+
+DataBinding还提供了一个ObservableArrayList类，用来保存key为integer的数据，这里不再介绍
+
+###### 可观察对象
+---
+
+一个实现了Observable接口的类当它的属性发生了变化时，会通知他的订阅者，Observable有一个移除和添加订阅者的机制，但是需要我们去决定什么时候通知订阅者属性发生了变化。为了使开发更简单，DataBinding库为我们提供了BaseObservable类，它为我们提供了通知订阅者的功能，我们只需要添加一个@Bindable注解到get方法，并且在set方法中调用notifyPropertyChanged()即可
+
+下面我们同样来定义一个ObservableImplUser类，继承BaseObservable类
+
+```kotlin
+class ObservableImplUser : BaseObservable() {
+
+    //在get方法上使用@Bindable注解
+    @get:Bindable
+    var userName: String = ""
+    set(value) {
+        field=value
+        //在set方法中调用notifyPropertyChanged方法通知订阅者
+        notifyPropertyChanged(BR.userName)
+    }
+
+    @get:Bindable
+    var userAge: Int = 0
+    set(value) {
+        field=value
+        notifyPropertyChanged(BR.userAge)
+    }
+
+    @get:Bindable
+    var userAddress: String = ""
+    set(value){
+        field=value
+        notifyPropertyChanged(BR.userAddress)
+    }
+}
+```
+从上面的类中我们可以看到，在get方法上我们使用了@Bindable注解，同时在set方法中我们调用了notifyPropertyChanged()方法
+
+<font color=red>注意,BR类为自动生成的类，如果在BR类中找不到定义的属性，需要在app的gradle文件中添加插件</font> 
+
+```gradle
+apply plugin: 'kotlin-kapt'
+```
+接下来在xml文件中引用定义的可观察对象
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+>
+    <data>
+        <!--<variable name="user" type="com.kk.tongfu.databinding.entity.ObservableUser"/>-->
+        <!--<import type="android.databinding.ObservableArrayMap"/>
+        <variable name="user" type="ObservableArrayMap&lt;String,Object>"/>-->
+
+        <variable name="user" type="com.kk.tongfu.databinding.entity.ObservableImplUser"/>
+    </data>
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:text="@{user.userName}"
+        />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:text="@{String.valueOf(user.userAge)}"
+        />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:text="@{user.userAddress}"
+        />
+
+        <Button android:id="@+id/btn_change_userinfo"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/change_user_info"
+        />
+    </LinearLayout>
+</layout>
+```
+同样在Activity中创建对象进行绑定，并添加点击事件更改用户名称
+
+```kotlin
+ override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val dataBinding: ActivitySpecialUseBinding = DataBindingUtil.setContentView(this, R.layout.activity_special_use)
+
+        //val user = ObservableUser(ObservableField("tongfu"), ObservableInt(25), ObservableField("shanghai"))
+        /* val user = ObservableArrayMap<String, Any>().apply {
+             put("userName", "tongfu")
+             put("userAge", 10)
+             put("userAddress", "shanghai")
+             put("userClass", "3-10")
+         }
+         dataBinding.user = user
+
+         dataBinding.btnChangeUserinfo.setOnClickListener {
+             Log.e("onClick", "changeUserName")
+             //user.userName="neza"
+             user.put("userName","neza")
+         }*/
+
+        val user = ObservableImplUser()
+		 user.userName="tongfu"
+        user.userAge=25
+        user.userAddress="shanghai"
+        dataBinding.user = user
+
+        dataBinding.btnChangeUserinfo.setOnClickListener {
+            Log.e("onClick", "changeUserName")
+            user.userName="neza"
+        }
+    }
+```
+点击更改用户信息按钮你就会发现用户名由tongfu变成了neza
+
+
+##### 生成Binding类
+
+###### DataBinding在fragemnt和adapter中的使用
+------
+
+在开始的介绍中我们发现，获取Binding类时通过DataBindingUtil.setContentView(this,R.layout.activity_main)来获取的，这种方式只能适用于在Activity中使用，其实DataBinding还为我们提供了其他几种生成Binding类的方式
+
+在Fragment中使用时，我们可以在OnCreateView通过如下方式获取Binding类
+
+```kotlin
+
+lateinit var binding:FragmentBindinguseBinding
+
+override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = DataBindingUtil.inflate(layoutInflater,R.layout.fragment_bindinguse,container,false)
+        //返回的是layout布局解析的文件，等同于inflater.inflate(R.layout.fragment_bindinguse,container,false)
+        return binding.root
+    }
+```
+也可以通过下面这种方式
+
+```kotlin
+View viewRoot = LayoutInflater.from(this).inflate(layoutId, parent, attachToParent);
+ViewDataBinding binding = DataBindingUtil.bind(viewRoot);
+```
+
+在Adapter中使用时我们可以通过如下方法,注意，在adapter中的数据绑定时采用的是setVariable方式，BR.user为系统自动生成
+
+```kotlin
+class UserAdapter:RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
+        val dataBinding: AdapterUserBinding =DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.adapter_user,parent,false)
+        return UserViewHolder(dataBinding)
+    }
+
+    override fun getItemCount(): Int {
+        return 10
+    }
+
+    override fun onBindViewHolder(userViewHolder: UserViewHolder, position: Int) {
+        val user= User("tongfu",position,"shanghai")
+        //在adapter中的数据绑定时采用的是setVariable方式，BR.user为系统自动生成
+        userViewHolder.dataBinding.setVariable(BR.user,user)
+    }
+
+    class UserViewHolder(val dataBinding: ViewDataBinding) : RecyclerView.ViewHolder(dataBinding.root)
+}
+```
+
+###### 添加绑定适配器
+---
+DataBinding库允许我们通过指定方法调用去设置属性的值，即便这个属性不存在，只要有set方法就可以在xml文件中声明，例如RecyclerView的LayoutManager，一般我们会通过如下方式代码进行设置
+
+```kotlin
+recyclerView.layoutManager=LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false)
+```
+由于RecyclerView有setLayoutManager()方法，现在通过绑定适配器直接可以通过如下方式,它们的效果是等同的，同理，我们也可以直接在xml中引用Adapter，使用这种方式，需要我们在xml文件定义的名称与set后面的名称相同，即声明了属性android:abc 对应的类中要有方法名为setAbc()的方法
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="android.support.v7.widget.LinearLayoutManager"/>
+        <variable name="layoutmanager" type="LinearLayoutManager"/>
+
+    </data>
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="@color/yellow"
+    >
+        <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="@{layoutmanager}"
+        />
+
+    </LinearLayout>
+</layout>
+```
+
+当然我们也可以自定义绑定逻辑，比如我想在所有的textview的后面都加上haha这个字符串，我们可以这么写：定义一个单例模式的类，然后在其中定义方法，并声明@BindingAdapter注解，如下：
+
+```kotlin
+
+	 //BindingAdapter注解中可以加入view原有的属性，也可以加入自己定义的属性
+    @BindingAdapter("android:text")
+    @JvmStatic fun setText(view:TextView,info:String){
+        view.text = info+"haha"
+    }
+    //注解中加入自定义的属性
+    @BindingAdapter("app:hideIfZero")
+    @JvmStatic fun hideIfZero(view: View, number: Int) {
+        view.visibility = if (number == 0) View.GONE else View.VISIBLE
+    }
+    
+```
 

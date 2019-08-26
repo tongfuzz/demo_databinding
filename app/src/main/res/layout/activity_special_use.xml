@@ -3,7 +3,11 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
 >
     <data>
-        <variable name="user" type="com.kk.tongfu.databinding.entity.ObservableUser"/>
+        <!--<variable name="user" type="com.kk.tongfu.databinding.entity.ObservableUser"/>-->
+        <!--<import type="android.databinding.ObservableArrayMap"/>
+        <variable name="user" type="ObservableArrayMap&lt;String,Object>"/>-->
+
+        <variable name="user" type="com.kk.tongfu.databinding.entity.ObservableImplUser"/>
     </data>
     <LinearLayout
             android:layout_width="match_parent"
@@ -25,7 +29,12 @@
                 android:text="@string/change_user_info"
         />
 
-
+        <FrameLayout
+                android:id="@+id/framelayout"
+                android:layout_width="match_parent" android:layout_height="match_parent">
+        </FrameLayout>
     </LinearLayout>
+
+
 
 </layout>
